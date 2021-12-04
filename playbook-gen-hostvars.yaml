@@ -1,0 +1,20 @@
+- hosts: Leaves
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Building Leaves configs
+      template:
+        src=template/leaves.j2
+        dest=host_vars/{{inventory_hostname}}.yaml
+
+- hosts: Spines
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Building Spines configs
+      template:
+        src=template/spines.j2
+        dest=host_vars/{{inventory_hostname}}.yaml
+
