@@ -11,8 +11,12 @@ Leaf6 ansible_host=192.168.114.18
 Spine[1:2]
 
 [Leaves]
-Leaf[1:6]
+Leaf[1:4]
+
+[Borders]
+Leaf[5:6]
 
 [dellos10:children]
 Spines
 Leaves
+Borders

@@ -1,12 +1,12 @@
 ---
-- hosts: Leaves
+- hosts: dellos10
   gather_facts: False
   collections:
     - dellemc.os10
   roles:
     - os10_system
 
-- hosts: Leaves
+- hosts: dellos10
   gather_facts: False
   collections:
     - dellemc.os10

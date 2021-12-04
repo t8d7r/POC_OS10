@@ -4,5 +4,5 @@
   collections:
     - dellemc.os10
   roles:
-    - os10_system
     - os10_interface
+    - os10_vlt
