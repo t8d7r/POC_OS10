@@ -1,0 +1,13 @@
+---
+- hosts: dellos10
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+   - name: "Display Dell EMC OS10 version"
+     os10_command:
+      commands: ['show version']
+     register: show_ver
+
+   - debug: var=show_ver
+
