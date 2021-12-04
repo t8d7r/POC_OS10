@@ -1,8 +1,0 @@
-- hosts: leaf1
-  gather_facts: false
-  connection: network_cli
-  collections:
-    - dellemc.os10
-  roles:
-    - os10_system
-    - os10_interface
