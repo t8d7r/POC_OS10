@@ -12,13 +12,19 @@ os10_interface:
     switchport: False
     admin: up
     mtu: 9216
-    ip_and_mask: 10.1.1.0/31
+#    ip_and_mask: 10.1.1.0/31
+    suppress_ra:
+    min_ra: 3
+    max_ra: 4
   ethernet 1/1/51:
     desc: "Link to Spine2-Z9100-ON ethernet1/1/1"
     switchport: False
     admin: up
     mtu: 9216
-    ip_and_mask: 10.1.2.0/31
+#    ip_and_mask: 10.1.2.0/31
+    suppress_ra:
+    min_ra: 3
+    max_ra: 4
   ethernet 1/1/55:
     desc: "VLT 1"
     switchport: False
@@ -37,3 +43,36 @@ os10_vlt:
     peer_routing: True
     vlt_mac: 52:54:00:a5:87:11
     state: present
+
+os10_bgp:
+    asn: 65111
+    router_id: 10.0.0.1
+    redistribute:
+      - route_type: connected
+        address_type: ipv4
+        state: present
+    neighbor:
+      - type: ipv4
+        interface: ethernet 1/1/49
+        send_community:
+          - type: extended
+            state: present
+        address_family:
+          - type: l2vpn
+            activate: true
+            state: present
+        admin: up
+        state: present
+      - type: ipv4
+        interface: ethernet 1/1/51
+        send_community:
+          - type: extended
+            state: present
+        address_family:
+          - type: l2vpn
+            activate: true
+            state: present
+        admin: up
+        state: present
+
+
