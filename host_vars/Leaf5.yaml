@@ -7,6 +7,19 @@ os10_interface:
   loopback 0:
     admin: up
     ip_and_mask: 10.0.0.5/32
+  ethernet 1/1/13:
+    desc: "Link to Spine1-Z9100-ON ethernet1/1/5"
+    switchport: False
+    admin: up
+    mtu: 9216
+    ip_and_mask: 10.5.1.0/31
+  ethernet 1/1/14:
+    desc: "Link to Spine2-Z9100-ON ethernet1/1/5"
+    switchport: False
+    admin: up
+    mtu: 9216
+    ip_and_mask: 10.5.2.0/31
+
   ethernet 1/1/15:
     desc: "VLT"
     switchport: False

@@ -7,3 +7,44 @@ os10_interface:
   loopback 0:
     admin: up
     ip_and_mask: 10.0.99.1/32
+  ethernet 1/1/1:
+    desc: "Link to Leaf1-S5248-ON ethernet1/1/49"
+    switchport: False
+    admin: up
+    mtu: 9216
+#    ip_and_mask: 10.1.1.1/31
+#    ipv6_autoconfig: true
+    suppress_ra:
+
+  ethernet 1/1/2:
+    desc: "Link to Leaf2-S5248-ON ethernet1/1/49"
+    switchport: False
+    admin: up
+    mtu: 9216
+    ip_and_mask: 10.2.1.1/31
+  ethernet 1/1/3:
+    desc: "Link to Leaf3-S5248-ON ethernet1/1/49"
+    switchport: False
+    admin: up
+    mtu: 9216
+    ip_and_mask: 10.3.1.1/31
+  ethernet 1/1/4:
+    desc: "Link to Leaf4-S5248-ON ethernet1/1/49"
+    switchport: False
+    admin: up
+    mtu: 9216
+    ip_and_mask: 10.4.1.1/31
+  ethernet 1/1/5:
+    desc: "Link to Leaf5-S4112-ON ethernet1/1/49"
+    switchport: False
+    admin: up
+    mtu: 9216
+    ip_and_mask: 10.5.1.1/31
+  ethernet 1/1/6:
+    desc: "Link to Leaf6-S4112-ON ethernet1/1/49"
+    switchport: False
+    admin: up
+    mtu: 9216
+    ip_and_mask: 10.6.1.1/31
+
+
