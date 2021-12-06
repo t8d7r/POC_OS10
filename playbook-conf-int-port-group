@@ -1,0 +1,12 @@
+---
+- hosts: Leaves
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+  - name: "Conf port-group 1 to 4-10x"
+    os10_config:
+      lines: ['mode Eth 10g-4x']
+      parents: ['port-group 1/1/1']
+
+
