@@ -7,6 +7,16 @@ os10_vrf:
     vrfdetails:
       - vrf_name: "Blue" 
         state: "present"
+      - vrf_name: "Red"
+        state: "present"
+
+os10_lag:
+  port-channel 10:
+    type: dynamic
+    channel_members:
+      - port: ethernet1/1/2:1
+        mode: active
+    state: present
 
 os10_interface:
   loopback 0:
@@ -51,6 +61,17 @@ os10_interface:
     ip_and_mask: 172.16.102.251/24
     virtual_gateway_ip: 172.16.102.254
     admin: up
+  virtual-network 10300:
+    vrf: "Red"
+    ip_and_mask: 172.16.103.251/24
+    virtual_gateway_ip: 172.16.103.254
+    admin: up
+  virtual-network 10400:
+    vrf: "Red"
+    ip_and_mask: 172.16.104.251/24
+    virtual_gateway_ip: 172.16.104.254
+    admin: up
+
 
 os10_vlt:
     domain: 1
@@ -60,6 +81,9 @@ os10_vlt:
     discovery_intf_state: present
     peer_routing: True
     vlt_mac: 52:54:00:a5:87:12
+    vlt_peers:
+     Po 10:
+        peer_lag: 10
     state: present
 
 os10_vlan:
@@ -67,10 +91,23 @@ os10_vlan:
       tagged_members:
         - port: ethernet 1/1/1:1
           state: present
+      state: present
     vlan 102:
       tagged_members:
         - port: ethernet 1/1/1:1
           state: present
+      state: present
+    vlan 103:
+      tagged_members:
+        - port: port-channel 10
+          state: present
+      state: present
+    vlan 104:
+      tagged_members:
+        - port: port-channel 10
+          state: present
+      state: present
+
 
 os10_prefix_list:
    - name: redistri-underlay
@@ -157,6 +194,26 @@ os10_vxlan:
               asn_value: "10200:10200"
               route_target_type: "both"
               state: present
+        - id: 10300
+          vni:
+            id: 10300
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10300:10300"
+              route_target_type: "both"
+              state: present
+        - id: 10400
+          vni:
+            id: 10400
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10400:10400"
+              route_target_type: "both"
+              state: present
       vrf:
         - name: "Blue"
           vni: 20000
@@ -168,6 +225,16 @@ os10_vxlan:
               asn_value: "20000:20000"
               route_target_type: "both"
               state: "present"
+        - name: "Red"
+          vni: 40000
+          adv_ipv4:
+            - type: "connected"
+              state: "present"
+          route_target:
+            - type: "manual"
+              asn_value: "40000:40000"
+              route_target_type: "both"
+              state: "present"
       rmac: 52:54:00:87:87:12
     virtual_network:
       virtual_net:
@@ -177,10 +244,20 @@ os10_vxlan:
         - id: 10200
           vxlan_vni:
             id: 10200
+        - id: 10300
+          vxlan_vni:
+            id: 10300
+        - id: 10400
+          vxlan_vni:
+            id: 10400
     vlan_association:
       - vlan_id: 101
         virtual_net: 10100
       - vlan_id: 102
         virtual_net: 10200
+      - vlan_id: 103
+        virtual_net: 10300
+      - vlan_id: 104
+        virtual_net: 10400
 
   
