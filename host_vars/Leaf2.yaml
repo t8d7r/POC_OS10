@@ -7,8 +7,14 @@ os10_vrf:
     vrfdetails:
       - vrf_name: "Blue" 
         state: "present"
+        ip_route_export:
+          community_value: "20000:20000"
+          state: "present"
       - vrf_name: "Red"
         state: "present"
+        ip_route_export:
+          community_value: "40000:40000"
+          state: "present"
 
 os10_lag:
   port-channel 10:

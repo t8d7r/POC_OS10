@@ -1,0 +1,27 @@
+---
+- hosts: Borders
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+  - name: "Conf OSPF Router"
+    os10_config:
+      lines: 
+        - router ospf 100 vrf Ext
+        - router ospf 101 vrf Blue
+        - router ospf 102 vrf Red
+  - name: "Conf OSPF Router-id"
+    os10_config:
+      lines: 
+        - router-id {{inventory_hostname[-1]}}.{{inventory_hostname[-1]}}.{{inventory_hostname[-1]}}.{{inventory_hostname[-1]}}
+        - redistribute l2vpn evpn
+      parents: ['router ospf 100 vrf Ext']
+  - name: "Conf OSPF interface"
+    os10_config:
+      lines: ['ip ospf 100 area 0.0.0.0']
+      parents: ['interface ethernet 1/1/1']
+  - name: "Conf OSPF P2P link"
+    os10_config:
+      lines: ['ip ospf network point-to-point']
+      parents: ['interface ethernet 1/1/1']
+

@@ -3,10 +3,37 @@ switch_role: leaf
 os10_system:
     hostname: Leaf5
 
+os10_vrf:
+    vrfdetails:
+      - vrf_name: "Blue" 
+        state: "present"
+        ip_route_export:
+          community_value: "20000:20000"
+          state: "present"
+        ip_route_import:
+          community_value: "60000:60000"
+          state: "present"
+      - vrf_name: "Red"
+        state: "present"
+        ip_route_export:
+          community_value: "40000:40000"
+          state: "present"
+        ip_route_import:
+          community_value: "60000:60000"
+          state: "present"
+      - vrf_name: "Ext"
+        state: "present"
+
 os10_interface:
   loopback 0:
     admin: up
     ip_and_mask: 10.0.0.13/32
+  ethernet 1/1/1:
+    desc: "link to EXT RTR"
+    switchport: False
+    vrf: Ext
+    mtu: 1532
+    ip_and_mask: 192.168.201.1/24
   ethernet 1/1/13:
     desc: "Link to Spine1-Z9100-ON ethernet1/1/5"
     switchport: False
@@ -25,11 +52,30 @@ os10_interface:
     suppress_ra:
     min_ra: 3
     max_ra: 4
-
   ethernet 1/1/15:
     desc: "VLT"
     switchport: False
     admin: up  
+  virtual-network 10100:
+    vrf: "Blue"
+    ip_and_mask: 172.16.101.249/24
+    virtual_gateway_ip: 172.16.101.254
+    admin: up
+  virtual-network 10200:
+    vrf: "Blue"
+    ip_and_mask: 172.16.102.249/24
+    virtual_gateway_ip: 172.16.102.254
+    admin: up
+  virtual-network 10300:
+    vrf: "Red"
+    ip_and_mask: 172.16.103.249/24
+    virtual_gateway_ip: 172.16.103.254
+    admin: up
+  virtual-network 10400:
+    vrf: "Red"
+    ip_and_mask: 172.16.104.249/24
+    virtual_gateway_ip: 172.16.104.254
+    admin: up
 
 os10_vlt:
     domain: 1
@@ -99,4 +145,91 @@ os10_bgp:
         admin: up
         state: present
 
-
+os10_vxlan:
+    anycast_gateway_mac: 52:54:00:87:87:87
+    nve:
+      source_interface: 0
+      state: present
+    evpn:
+      evi:
+        - id: 10100
+          vni: 
+            id: 10100
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10100:10100"
+              route_target_type: "both"
+              state: "present"
+        - id: 10200
+          vni: 
+            id: 10200
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10200:10200"
+              route_target_type: "both"
+              state: present
+        - id: 10300
+          vni:
+            id: 10300
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10300:10300"
+              route_target_type: "both"
+              state: present
+        - id: 10400
+          vni:
+            id: 10400
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10400:10400"
+              route_target_type: "both"
+              state: present
+      vrf:
+        - name: "Blue"
+          vni: 20000
+          adv_ipv4:
+            - type: "connected"
+              state: "present"
+            - type: "ospf"
+              state: "present"
+          route_target:
+            - type: "manual"
+              asn_value: "20000:20000"
+              route_target_type: "both"
+              state: "present"
+        - name: "Red"
+          vni: 40000
+          adv_ipv4:
+            - type: "connected"
+              state: "present"
+            - type: "ospf"
+              state: "present"
+          route_target:
+            - type: "manual"
+              asn_value: "40000:40000"
+              route_target_type: "both"
+              state: "present"
+        - name: "Ext"
+      rmac: 52:54:00:87:87:13
+    virtual_network:
+      virtual_net:
+        - id: 10100
+          vxlan_vni:
+            id: 10100
+        - id: 10200
+          vxlan_vni:
+            id: 10200
+        - id: 10300
+          vxlan_vni:
+            id: 10300
+        - id: 10400
+          vxlan_vni:
+            id: 10400
