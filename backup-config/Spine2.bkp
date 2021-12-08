@@ -1,13 +1,9 @@
 ! Version 10.5.3.0
-! Last configuration change at Dec  04 21:28:59 2021
+! Last configuration change at Dec  08 06:29:34 2021
 !
 ip vrf default
 !
-ip vrf TENANT1
-!
-ip vrf management
- interface management
-!
+ip prefix-list redistri-underlay seq 5 permit 10.0.99.0/24 ge 32 le 32
 hostname Spine2
 system-user linuxadmin password ****
 interface breakout 1/1/1 map 100g-1x
@@ -42,7 +38,6 @@ interface breakout 1/1/29 map 100g-1x
 interface breakout 1/1/30 map 100g-1x
 interface breakout 1/1/31 map 100g-1x
 interface breakout 1/1/32 map 100g-1x
-ip scp vrf management
 iscsi target port 860
 iscsi target port 3260
 username admin password **** role sysadmin priv-lvl 15
@@ -58,59 +53,71 @@ interface vlan1
 !
 interface loopback0
  no shutdown
- ip address 10.0.0.2/32
+ ip address 10.0.99.2/32
 !
 interface mgmt1/1/1
  no shutdown
- no ip address dhcp
- ip address 192.168.114.12/24
+ ip address dhcp
+ ipv6 address autoconfig
 !
 interface ethernet1/1/1
- description "Link to L1-S5248F-ON ethernet1/1/51"
+ description "Link to Leaf1-S5248-ON ethernet1/1/51"
  no shutdown
  no switchport
  mtu 9216
- ip address 10.2.3.2/24
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/2
- description "Link to L2-S5248F-ON ethernet1/1/51"
+ description "Link to Leaf2-S5248-ON ethernet1/1/51"
  no shutdown
  no switchport
  mtu 9216
- ip address 10.2.4.2/24
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/3
- description "Link to L3-S5248F-ON ethernet1/1/51"
+ description "Link to Leaf3-S5248-ON ethernet1/1/51"
  no shutdown
  no switchport
  mtu 9216
- ip address 10.2.5.2/24
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/4
- description "Link to L4-S5248F-ON ethernet1/1/51"
+ description "Link to Leaf4-S5248-ON ethernet1/1/51"
  no shutdown
  no switchport
  mtu 9216
- ip address 10.2.6.2/24
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/5
- description "Link to L5-S4112F-ON ethernet1/1/14"
+ description "Link to Leaf5-S4112-ON ethernet1/1/51"
  no shutdown
  no switchport
  mtu 9216
- ip address 10.2.7.2/24
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/6
- description "Link to L6-S4112F-ON ethernet1/1/14"
+ description "Link to Leaf6-S4112-ON ethernet1/1/51"
  no shutdown
  no switchport
  mtu 9216
- ip address 10.2.8.2/24
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/7
@@ -255,128 +262,58 @@ interface ethernet1/1/34
 !
 management route 0.0.0.0/0 192.168.114.254
 !
-router bgp 65010
- bestpath as-path multipath-relax
+route-map redistri-underlay permit 5
+ match ip address prefix-list redistri-underlay 
+!
+router bgp 65101
+ router-id 10.0.99.2
  !
  address-family ipv4 unicast
-  redistribute connected
+  redistribute connected route-map redistri-underlay
  !
- neighbor 10.2.3.3
-  remote-as 65021
-  no shutdown
-  !
-  address-family ipv4 unicast
-   no sender-side-loop-detection
- !
- neighbor 10.2.4.4
-  remote-as 65021
-  no shutdown
-  !
-  address-family ipv4 unicast
-   no sender-side-loop-detection
- !
- neighbor 10.2.5.5
-  remote-as 65022
-  no shutdown
-  !
-  address-family ipv4 unicast
-   no sender-side-loop-detection
- !
- neighbor 10.2.6.6
-  remote-as 65022
-  no shutdown
- !
- neighbor 10.2.7.7
-  remote-as 65023
-  no shutdown
-  !
-  address-family ipv4 unicast
-   no sender-side-loop-detection
- !
- neighbor 10.2.8.8
-  remote-as 65023
-  no shutdown
-  !
-  address-family ipv4 unicast
-   no sender-side-loop-detection
- !
- neighbor 10.0.0.3
-  remote-as 65021
+ neighbor interface ethernet1/1/1
   send-community extended
-  update-source loopback0
   no shutdown
-  !
-  address-family ipv4 unicast
-   no activate
   !
   address-family l2vpn evpn
    activate
-   no sender-side-loop-detection
  !
- neighbor 10.0.0.4
-  remote-as 65021
+ neighbor interface ethernet1/1/2
   send-community extended
-  update-source loopback0
   no shutdown
-  !
-  address-family ipv4 unicast
-   no activate
   !
   address-family l2vpn evpn
    activate
-   no sender-side-loop-detection
  !
- neighbor 10.0.0.5
-  remote-as 65022
+ neighbor interface ethernet1/1/3
   send-community extended
-  update-source loopback0
   no shutdown
-  !
-  address-family ipv4 unicast
-   no activate
   !
   address-family l2vpn evpn
    activate
-   no sender-side-loop-detection
  !
- neighbor 10.0.0.6
-  remote-as 65022
+ neighbor interface ethernet1/1/4
   send-community extended
-  update-source loopback0
   no shutdown
-  !
-  address-family ipv4 unicast
-   no activate
   !
   address-family l2vpn evpn
    activate
-   no sender-side-loop-detection
  !
- neighbor 10.0.0.7
-  remote-as 65023
+ neighbor interface ethernet1/1/5
   send-community extended
-  update-source loopback0
   no shutdown
-  !
-  address-family ipv4 unicast
-   no activate
   !
   address-family l2vpn evpn
    activate
-   no sender-side-loop-detection
  !
- neighbor 10.0.0.8
-  remote-as 65023
+ neighbor interface ethernet1/1/6
   send-community extended
-  update-source loopback0
   no shutdown
-  !
-  address-family ipv4 unicast
-   no activate
   !
   address-family l2vpn evpn
    activate
-   no sender-side-loop-detection
+!
+evpn
 !
 snmp-server contact "Contact Support"
 !

@@ -1,9 +1,16 @@
 ! Version 10.5.3.0
-! Last configuration change at Dec  04 21:28:55 2021
+! Last configuration change at Dec  08 06:29:18 2021
 !
 ip vrf default
 !
+ip vrf Blue
+!
+ip vrf Red
+!
+ip prefix-list redistri-underlay seq 5 permit 10.0.0.0/24 ge 32 le 32
+hostname Leaf1
 system-user linuxadmin password ****
+ip virtual-router mac-address 52:54:00:87:87:87
 iscsi target port 860
 iscsi target port 3260
 username admin password **** role sysadmin priv-lvl 15
@@ -14,8 +21,16 @@ class-map type application class-iscsi
 !
 policy-map type application policy-iscsi
 !
+virtual-network 10100
+!
+virtual-network 10200
+!
+virtual-network 10300
+!
+virtual-network 10400
+!
 port-group 1/1/1
- mode Eth 25g-4x
+ mode Eth 10g-4x
 !
 port-group 1/1/2
  mode Eth 25g-4x
@@ -71,27 +86,58 @@ port-group 1/1/18
 interface vlan1
  no shutdown
 !
+interface vlan101
+ virtual-network 10100
+ no shutdown
+!
+interface vlan102
+ virtual-network 10200
+ no shutdown
+!
+interface vlan103
+ virtual-network 10300
+ no shutdown
+!
+interface vlan104
+ virtual-network 10400
+ no shutdown
+!
+interface vlan4000
+ no shutdown
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
+!
+interface loopback0
+ no shutdown
+ ip address 10.0.0.1/32
+!
+nve
+ source-interface loopback0
+!
 interface mgmt1/1/1
  no shutdown
  ip address dhcp
  ipv6 address autoconfig
 !
-interface ethernet1/1/1
+interface ethernet1/1/1:1
+ no shutdown
+ switchport mode trunk
+ switchport access vlan 1
+ switchport trunk allowed vlan 101-104
+ flowcontrol receive off
+!
+interface ethernet1/1/2:1
  no shutdown
  switchport access vlan 1
  flowcontrol receive off
 !
-interface ethernet1/1/2
+interface ethernet1/1/3:1
  no shutdown
  switchport access vlan 1
  flowcontrol receive off
 !
-interface ethernet1/1/3
- no shutdown
- switchport access vlan 1
- flowcontrol receive off
-!
-interface ethernet1/1/4
+interface ethernet1/1/4:1
  no shutdown
  switchport access vlan 1
  flowcontrol receive off
@@ -317,8 +363,13 @@ interface ethernet1/1/48
  flowcontrol receive off
 !
 interface ethernet1/1/49
+ description "Link to Spine1-Z9100-ON ethernet1/1/1"
  no shutdown
- switchport access vlan 1
+ no switchport
+ mtu 9216
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/50
@@ -327,8 +378,13 @@ interface ethernet1/1/50
  flowcontrol receive off
 !
 interface ethernet1/1/51
+ description "Link to Spine2-Z9100-ON ethernet1/1/1"
  no shutdown
- switchport access vlan 1
+ no switchport
+ mtu 9216
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/52
@@ -347,14 +403,127 @@ interface ethernet1/1/54
  flowcontrol receive off
 !
 interface ethernet1/1/55
+ description "VLT 1"
  no shutdown
- switchport access vlan 1
+ no switchport
  flowcontrol receive off
 !
 interface ethernet1/1/56
+ description "VLT 2"
  no shutdown
- switchport access vlan 1
+ no switchport
  flowcontrol receive off
+!
+interface virtual-network10100
+ no shutdown
+ ip vrf forwarding Blue
+ ip address 172.16.101.253/24
+ ip virtual-router address 172.16.101.254
+!
+interface virtual-network10200
+ no shutdown
+ ip vrf forwarding Blue
+ ip address 172.16.102.253/24
+ ip virtual-router address 172.16.102.254
+!
+interface virtual-network10300
+ no shutdown
+ ip vrf forwarding Red
+ ip address 172.16.103.253/24
+ ip virtual-router address 172.16.103.254
+!
+interface virtual-network10400
+ no shutdown
+ ip vrf forwarding Red
+ ip address 172.16.104.253/24
+ ip virtual-router address 172.16.104.254
+!
+management route 0.0.0.0/0 192.168.114.254
+!
+route-map redistri-underlay permit 5
+ match ip address prefix-list redistri-underlay 
+!
+router bgp 65111
+ router-id 10.0.0.1
+ !
+ address-family ipv4 unicast
+  redistribute connected route-map redistri-underlay
+ !
+ neighbor interface ethernet1/1/49
+  send-community extended
+  no shutdown
+  !
+  address-family l2vpn evpn
+   activate
+ !
+ neighbor interface ethernet1/1/51
+  send-community extended
+  no shutdown
+  !
+  address-family l2vpn evpn
+   activate
+ !
+ neighbor interface vlan4000
+  send-community extended
+  no shutdown
+  !
+  address-family l2vpn evpn
+   activate
+!
+vlt-domain 1
+ backup destination 192.168.114.14
+ discovery-interface ethernet1/1/55-1/1/56
+ peer-routing
+ vlt-mac 52:54:00:a5:87:11
+!
+evpn
+ router-mac 52:54:00:87:87:11
+ !
+ evi 10100
+  vni 10100
+  rd auto
+  route-target 10100:10100 both
+ !
+ evi 10200
+  vni 10200
+  rd auto
+  route-target 10200:10200 both
+ !
+ evi 10300
+  vni 10300
+  rd auto
+  route-target 10300:10300 both
+ !
+ evi 10400
+  vni 10400
+  rd auto
+  route-target 10400:10400 both
+ !
+ vrf Blue
+  vni 20000
+  route-target 20000:20000 both
+  advertise ipv4 connected
+ !
+ vrf Red
+  vni 40000
+  route-target 40000:40000 both
+  advertise ipv4 connected
+!
+virtual-network 10100
+ !
+ vxlan-vni 10100
+!
+virtual-network 10200
+ !
+ vxlan-vni 10200
+!
+virtual-network 10300
+ !
+ vxlan-vni 10300
+!
+virtual-network 10400
+ !
+ vxlan-vni 10400
 !
 snmp-server contact "Contact Support"
 !

@@ -1,20 +1,16 @@
 ! Version 10.5.3.0
-! Last configuration change at Dec  05 05:13:11 2021
+! Last configuration change at Dec  08 14:13:34 2021
 !
 ip vrf default
 !
-ip vrf TENANT1
- ip route-export 65023:65023
- ip route-import 65023:65023
+ip vrf Blue
 !
-ip vrf management
- interface management
+ip vrf Red
 !
-spanning-tree rstp priority 57344
+ip prefix-list redistri-underlay seq 5 permit 10.0.0.0/24 ge 32 le 32
 hostname Leaf4
 system-user linuxadmin password ****
-ip virtual-router mac-address 00:01:01:01:01:01
-ip scp vrf management
+ip virtual-router mac-address 52:54:00:87:87:87
 iscsi target port 860
 iscsi target port 3260
 username admin password **** role sysadmin priv-lvl 15
@@ -25,9 +21,13 @@ class-map type application class-iscsi
 !
 policy-map type application policy-iscsi
 !
-virtual-network 1001
+virtual-network 10100
 !
-virtual-network 1002
+virtual-network 10200
+!
+virtual-network 10300
+!
+virtual-network 10400
 !
 port-group 1/1/1
  mode Eth 10g-4x
@@ -86,23 +86,45 @@ port-group 1/1/18
 interface vlan1
  no shutdown
 !
+interface vlan101
+ virtual-network 10100
+ no shutdown
+!
+interface vlan102
+ virtual-network 10200
+ no shutdown
+!
+interface vlan103
+ virtual-network 10300
+ no shutdown
+!
+interface vlan104
+ virtual-network 10400
+ no shutdown
+!
+interface vlan4000
+ no shutdown
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
+!
 interface loopback0
  no shutdown
- ip address 10.0.0.6/32
+ ip address 10.0.0.2/32
 !
 nve
  source-interface loopback0
 !
 interface mgmt1/1/1
  no shutdown
- no ip address dhcp
- ip address 192.168.114.16/24
+ ip address dhcp
+ ipv6 address autoconfig
 !
 interface ethernet1/1/1:1
- description "link to server"
  no shutdown
  switchport mode trunk
  switchport access vlan 1
+ switchport trunk allowed vlan 101-102
  flowcontrol receive off
 !
 interface ethernet1/1/2:1
@@ -123,404 +145,385 @@ interface ethernet1/1/4:1
 interface ethernet1/1/5
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/6
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/7
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/8
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/9
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/10
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/11
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/12
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/13
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/14
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/15
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/16
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/17
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/18
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/19
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/20
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/21
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/22
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/23
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/24
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/25
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/26
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/27
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/28
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/29
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/30
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/31
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/32
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/33
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/34
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/35
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/36
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/37
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/38
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/39
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/40
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/41
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/42
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/43
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/44
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/45
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/46
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/47
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/48
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/49
- description "Link to S1-Z9100-ON ethernet1/1/4"
+ description "Link to Spine1-Z9100-ON ethernet1/1/4"
  no shutdown
  no switchport
  mtu 9216
- ip address 10.1.6.6/24
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/50
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/51
- description "Link to S2-Z9100-ON ethernet1/1/4"
+ description "Link to Spine2-Z9100-ON ethernet1/1/4"
  no shutdown
  no switchport
  mtu 9216
- ip address 10.2.6.6/24
+ ipv6 nd max-ra-interval 4
+ ipv6 nd min-ra-interval 3
+ ipv6 nd send-ra
  flowcontrol receive off
 !
 interface ethernet1/1/52
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/53
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/54
  no shutdown
  switchport access vlan 1
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/55
+ description "VLT 1"
  no shutdown
  no switchport
- mtu 1532
  flowcontrol receive off
 !
 interface ethernet1/1/56
+ description "VLT 2"
  no shutdown
  no switchport
- mtu 1532
  flowcontrol receive off
 !
-interface virtual-network1001
+interface virtual-network10100
  no shutdown
- ip vrf forwarding TENANT1
- ip address 172.16.101.6/24
- ip virtual-router address 172.16.101.1
+ ip vrf forwarding Blue
+ ip address 172.16.101.250/24
+ ip virtual-router address 172.16.101.254
 !
-interface virtual-network1002
+interface virtual-network10200
  no shutdown
- ip vrf forwarding TENANT1
- ip address 172.16.102.6/24
- ip virtual-router address 172.16.102.1
+ ip vrf forwarding Blue
+ ip address 172.16.102.250/24
+ ip virtual-router address 172.16.102.254
+!
+interface virtual-network10300
+ no shutdown
+ ip vrf forwarding Red
+ ip address 172.16.103.250/24
+ ip virtual-router address 172.16.103.254
+!
+interface virtual-network10400
+ no shutdown
+ ip vrf forwarding Red
+ ip address 172.16.104.250/24
+ ip virtual-router address 172.16.104.254
 !
 management route 0.0.0.0/0 192.168.114.254
 !
-router bgp 65022
- bestpath as-path multipath-relax
+route-map redistri-underlay permit 5
+ match ip address prefix-list redistri-underlay 
+!
+router bgp 65112
+ router-id 10.0.0.4
  !
  address-family ipv4 unicast
-  redistribute connected
+  redistribute connected route-map redistri-underlay
  !
- neighbor 10.1.6.1
-  remote-as 65010
-  no shutdown
-  !
-  address-family ipv4 unicast
-   allowas-in 1
- !
- neighbor 10.2.6.2
-  remote-as 65010
-  no shutdown
-  !
-  address-family ipv4 unicast
-   allowas-in 1
- !
- neighbor 10.0.0.1
-  remote-as 65010
+ neighbor interface ethernet1/1/49
   send-community extended
-  update-source loopback0
   no shutdown
-  !
-  address-family ipv4 unicast
-   no activate
   !
   address-family l2vpn evpn
    activate
-   allowas-in 1
  !
- neighbor 10.0.0.2
-  remote-as 65010
+ neighbor interface ethernet1/1/51
   send-community extended
-  update-source loopback0
   no shutdown
-  !
-  address-family ipv4 unicast
-   no activate
   !
   address-family l2vpn evpn
    activate
-   allowas-in 1
+ !
+ neighbor interface vlan4000
+  send-community extended
+  no shutdown
+  !
+  address-family l2vpn evpn
+   activate
 !
 vlt-domain 1
  backup destination 192.168.114.15
  discovery-interface ethernet1/1/55-1/1/56
  peer-routing
- primary-priority 8192
- vlt-mac 00:11:22:33:44:55
+ vlt-mac 52:54:00:a5:87:12
 !
 evpn
- auto-evi
- disable-rt-asn
- router-mac 00:00:01:02:03:06
+ router-mac 52:54:00:87:87:12
  !
- vrf TENANT1
-  vni 3000
-  route-target 3000:3000 both
+ evi 10100
+  vni 10100
+  rd auto
+  route-target 10100:10100 both
+ !
+ evi 10200
+  vni 10200
+  rd auto
+  route-target 10200:10200 both
+ !
+ evi 10300
+  vni 10300
+  rd auto
+  route-target 10300:10300 both
+ !
+ evi 10400
+  vni 10400
+  rd auto
+  route-target 10400:10400 both
+ !
+ vrf Blue
+  vni 20000
+  route-target 20000:20000 both
+  advertise ipv4 connected
+ !
+ vrf Red
+  vni 40000
+  route-target 40000:40000 both
+  advertise ipv4 connected
 !
-virtual-network 1001
- member-interface ethernet1/1/1:1 vlan-tag 101
+virtual-network 10100
  !
- vxlan-vni 1001
+ vxlan-vni 10100
 !
-virtual-network 1002
- member-interface ethernet1/1/1:1 vlan-tag 102
+virtual-network 10200
  !
- vxlan-vni 1002
+ vxlan-vni 10200
+!
+virtual-network 10300
+ !
+ vxlan-vni 10300
+!
+virtual-network 10400
+ !
+ vxlan-vni 10400
 !
 snmp-server contact "Contact Support"
 !
