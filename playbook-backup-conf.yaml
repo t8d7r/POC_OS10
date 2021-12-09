@@ -9,4 +9,4 @@
        backup: yes
        backup_options:
          filename: "{{inventory_hostname}}.bkp"
-         dir_path: ./backup-config
+         dir_path: ./working-conf

@@ -3,6 +3,14 @@ switch_role: leaf
 os10_system:
     hostname: {{inventory_hostname}}
 
+os10_snmp:
+    snmp_contact:  Me
+    snmp_location: Limoges
+    snmp_community:
+      - name: public
+        access_mode: ro
+        state: present
+
 os10_vrf:
     vrfdetails:
       - vrf_name: "Blue" 
