@@ -1,0 +1,35 @@
+- hosts: Leaves,Borders
+  connection: local
+  gather_facts: no
+  vars_prompt:
+    - name: vlan_id
+      prompt: Please enter vlan id
+      private: no
+  tasks:
+    - name: Print Variable
+      ansible.builtin.debug:
+        msg: 'Vlan {{vlan_id}} will be deleted'
+    - name: Building Var file
+      template:
+        src=template/delete-vlan.j2
+        dest=tmp/del-vlan.yaml
+
+- hosts: Leaves,Borders
+  gather_facts: no
+  connection: network_cli
+  vars_files:
+    - ./tmp/del-vlan.yaml
+  collections:
+    - dellemc.os10
+  roles:
+    - os10_vlan
+    - os10_vxlan
+
+- hosts: Leaves,Borders
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Remove file (delete file)
+      ansible.builtin.file:
+        path: tmp/del-vlan.yaml
+        state: absent

@@ -1,0 +1,35 @@
+- hosts: Leaf4
+  connection: local
+  gather_facts: no
+  vars_prompt:
+    - name: vlan_id
+      prompt: Please enter vlan id
+      private: no
+    - name: tenant_id
+      prompt: Please enter tenant for vlan
+      private: no
+    - name: network_ip_mask
+      prompt: Please enter network ip & mask for vlan (X.X.X.X/X)
+      private: no
+    - name: gw_ip
+      prompt: Please enter network ip & mask for vlan (X.X.X.X)
+      private: no
+  tasks:
+    - name: Print Variable
+      ansible.builtin.debug:
+        msg: 'Vlan {{vlan_id}} for tenant {{tenant_id}} with ip and mask {{network_ip_mask}} GW {{ gw_ip }}  will be created'
+    - name: Building Var file
+      template:
+        src=template/create-vlan.j2
+        dest=tmp/vlan.yaml
+
+
+        #- hosts: Leaf4
+  #gather_facts: no
+  #connection: network_cli
+  #vars_files:
+  #  - ./tmp/vlan.yaml
+  #collections:
+  #  - dellemc.os10
+  #roles:
+  #  - os10_interface

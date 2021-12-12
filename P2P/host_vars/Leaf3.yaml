@@ -1,5 +1,13 @@
 switch_role: borders
 
+cli:
+   host: "192.168.114.15"
+   username: "admin"
+   password: "admin"
+   timeout: 300
+os10_cli_user: admin
+os10_cli_pass: admin
+
 os10_system:
     hostname: Leaf3
 

@@ -1,0 +1,21 @@
+os10_interface:
+  vlan {{ vlan_id | string }}:
+    state: "absent"
+  virtual-network {{ vlan_id |string }}00:
+    state: "absent"
+
+os10_vxlan:
+    evpn:
+      evi:
+        - id: {{ vlan_id }}00
+          state: "absent"
+    vlan_association:
+       - vlan_id: 105
+         virtual_net: 10500
+         state: "absent"
+    virtual_network:
+      virtual_net:
+        - id: {{ vlan_id }}00
+          vxlan_vni:
+            state: "absent"
+          state: "absent"

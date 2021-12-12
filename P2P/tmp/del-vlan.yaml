@@ -1,0 +1,21 @@
+os10_interface:
+  vlan 105:
+    state: "absent"
+  virtual-network 10500:
+    state: "absent"
+
+os10_vxlan:
+    evpn:
+      evi:
+        - id: 10500
+          state: "absent"
+    vlan_association:
+       - vlan_id: 105
+         virtual_net: 10500
+         state: "absent"
+    virtual_network:
+      virtual_net:
+        - id: 10500
+          vxlan_vni:
+            state: "absent"
+          state: "absent"

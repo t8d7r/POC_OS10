@@ -1,0 +1,34 @@
+os10_interface:
+  vlan {{ vlan_id | string }}:
+    admin: up
+  virtual-network {{ vlan_id |string }}00:
+    vrf: {{ tenant_id }}
+    ip_and_mask: {{ network_ip_mask.split('.')[0]+'.'+network_ip_mask.split('.')[1]+'.'+network_ip_mask.split('.')[2]+'.'+((254-(inventory_hostname[-1] | int))|string)+'/'+network_ip_mask.split('/')[1]}}
+    virtual_gateway_ip: {{ network_ip_mask.split('.')[0]+'.'+network_ip_mask.split('.')[1]+'.'+network_ip_mask.split('.')[2]}}.254
+    admin: up
+
+os10_vxlan:
+    evpn:
+      evi:
+        - id: {{ vlan_id | string }}00
+          vni:
+            id: {{ vlan_id |string }}00
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: {{ vlan_id |string }}00:{{ vlan_id |string }}00
+              route_target_type: "both"
+              state: "present"
+    virtual_network:
+      virtual_net:
+        - id: {{ vlan_id | string }}00
+          vxlan_vni:
+            id: {{ vlan_id | string }}00
+    vlan_association:
+      - vlan_id: {{ vlan_id | string }}
+        virtual_net: {{ vlan_id | string }}00
+
+
+
+

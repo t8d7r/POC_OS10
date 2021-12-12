@@ -1,2 +1,101 @@
-nb_leaves: 6
+nb_leaves: 4
 nb_spines: 2
+
+intended_neighbors:
+  - source_switch: Leaf1
+    source_port: ethernet1/1/49
+    dest_port: ethernet1/1/1
+    dest_switch: Spine1
+  - source_switch: Leaf1
+    source_port: ethernet1/1/51
+    dest_port: ethernet1/1/1
+    dest_switch: Spine2
+  - source_switch: Leaf1
+    source_port: ethernet1/1/55
+    dest_port: ethernet1/1/55
+    dest_switch: Leaf2
+  - source_switch: Leaf1
+    source_port: ethernet1/1/56
+    dest_port: ethernet1/1/56
+    dest_switch: Leaf2
+  - source_switch: Leaf2
+    source_port: ethernet1/1/49
+    dest_port: ethernet1/1/2
+    dest_switch: Spine1
+  - source_switch: Leaf2
+    source_port: ethernet1/1/51
+    dest_port: ethernet1/1/2
+    dest_switch: Spine2
+  - source_switch: Leaf2
+    source_port: ethernet1/1/55
+    dest_port: ethernet1/1/55
+    dest_switch: Leaf1
+  - source_switch: Leaf2
+    source_port: ethernet1/1/56
+    dest_port: ethernet1/1/56
+    dest_switch: Leaf1
+  - source_switch: Leaf3
+    source_port: ethernet1/1/49
+    dest_port: ethernet1/1/3
+    dest_switch: Spine1
+  - source_switch: Leaf3
+    source_port: ethernet1/1/51
+    dest_port: ethernet1/1/3
+    dest_switch: Spine2
+  - source_switch: Leaf3
+    source_port: ethernet1/1/55
+    dest_port: ethernet1/1/55
+    dest_switch: Leaf4
+  - source_switch: Leaf3
+    source_port: ethernet1/1/56
+    dest_port: ethernet1/1/56
+    dest_switch: Leaf4
+  - source_switch: Leaf4
+    source_port: ethernet1/1/49
+    dest_port: ethernet1/1/4
+    dest_switch: Spine1
+  - source_switch: Leaf4
+    source_port: ethernet1/1/51
+    dest_port: ethernet1/1/4
+    dest_switch: Spine2
+  - source_switch: Leaf4
+    source_port: ethernet1/1/55
+    dest_port: ethernet1/1/55
+    dest_switch: Leaf3
+  - source_switch: Leaf4
+    source_port: ethernet1/1/56
+    dest_port: ethernet1/1/56
+    dest_switch: Leaf3
+  - source_switch: Spine1
+    source_port: ethernet1/1/1
+    dest_port: ethernet1/1/49
+    dest_switch: Leaf1
+  - source_switch: Spine1
+    source_port: ethernet1/1/2
+    dest_port: ethernet1/1/49
+    dest_switch: Leaf2
+  - source_switch: Spine1
+    source_port: ethernet1/1/3
+    dest_port: ethernet1/1/49
+    dest_switch: Leaf3
+  - source_switch: Spine1
+    source_port: ethernet1/1/4
+    dest_port: ethernet1/1/49
+    dest_switch: Leaf4
+  - source_switch: Spine2
+    source_port: ethernet1/1/1
+    dest_port: ethernet1/1/51
+    dest_switch: Leaf1
+  - source_switch: Spine2
+    source_port: ethernet1/1/2
+    dest_port: ethernet1/1/51
+    dest_switch: Leaf2
+  - source_switch: Spine2
+    source_port: ethernet1/1/3
+    dest_port: ethernet1/1/51
+    dest_switch: Leaf3
+  - source_switch: Spine2
+    source_port: ethernet1/1/4
+    dest_port: ethernet1/1/51
+    dest_switch: Leaf4
+

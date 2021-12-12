@@ -1,0 +1,24 @@
+- hosts: Leaves,Borders
+  connection: network_cli
+  gather_facts: no
+  collections:
+    - dellemc.os10
+  vars_prompt:
+    - name: vlan_id
+      prompt: Please enter vlan id
+      private: no
+  tasks:
+    - name: Print Variable
+      ansible.builtin.debug:
+        msg: 'Vlan {{vlan_id}} will be deleted'
+    - name: "Delete Vlan"
+      os10_config:
+        lines:
+          - no interface vlan {{ vlan_id }}
+          - no interface virtual-network {{ vlan_id }}00
+          - no virtual-network {{ vlan_id }}00
+    - name: "Delete Overlay Conf for Vlan"
+      os10_config:
+        lines:
+          - no evi {{ vlan_id}}00
+        parents: ['evpn']

@@ -1,5 +1,13 @@
 switch_role: spine
 
+cli:
+   host: "{{ ansible_host }}"
+   username: "{{ os10_cli_user | default('admin') }}"
+   password: "{{ os10_cli_pass | default('admin') }}"
+   timeout: 300
+os10_cli_user: admin
+os10_cli_pass: admin
+
 os10_system:
     hostname: {{inventory_hostname}}
 

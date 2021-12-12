@@ -1,0 +1,21 @@
+- hosts: Leaves,Borders
+  connection: network_cli
+  gather_facts: no
+  collections:
+    - dellemc.os10
+  vars_prompt:
+    - name: vlan_id
+      prompt: Please enter vlan id
+      private: no
+    - name: if_name
+      prompt: Please enter intreface name (port-channel XX or ethernet X/X/X)
+      private: no
+  tasks:
+    - name: Print Variable
+      ansible.builtin.debug:
+        msg: 'Vlan {{vlan_id}} tag will be remove from interface {{if_name}}'
+    - name: "Tag Vlan"
+      os10_config:
+        lines:
+          - no switchport trunk allowed vlan {{ vlan_id }}
+        parents: ['interface {{if_name}}']
