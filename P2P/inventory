@@ -1,0 +1,20 @@
+Spine1 ansible_host=192.168.114.11
+Spine2 ansible_host=192.168.114.12
+Leaf1 ansible_host=192.168.114.13
+Leaf2 ansible_host=192.168.114.14
+Leaf3 ansible_host=192.168.114.15
+Leaf4 ansible_host=192.168.114.16
+
+[Spines]
+Spine[1:2]
+
+[Leaves]
+Leaf[1:2]
+
+[Borders]
+Leaf[3:4]
+
+[dellos10:children]
+Spines
+Leaves
+Borders

@@ -1,0 +1,16 @@
+- hosts: dellos10
+  gather_facts: false
+  ignore_errors: yes
+  connection: network_cli
+  collections:
+    - dellemc.os10
+  roles:
+    - os10_vrf
+    - os10_interface
+    - os10_lag
+    - os10_vlan
+    - os10_vlt
+    - os10_prefix_list
+    - os10_route_map
+    - os10_bgp
+    - os10_vxlan

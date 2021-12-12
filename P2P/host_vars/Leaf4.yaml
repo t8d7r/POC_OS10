@@ -1,0 +1,329 @@
+switch_role: borders
+
+os10_system:
+    hostname: Leaf4
+
+os10_snmp:
+    snmp_contact:  Me
+    snmp_location: Limoges
+    snmp_community:
+      - name: public
+        access_mode: ro
+        state: present
+
+os10_vrf:
+    vrfdetails:
+      - vrf_name: "default"
+        state: present
+      - vrf_name: "Blue" 
+        state: "present"
+      - vrf_name: "Red"
+        state: "present"
+
+os10_prefix_list:
+   - name: redistri-underlay
+     type: ipv4
+     entries:
+       - number: 5
+         permit: true
+         net_num: 10.0.0.0
+         mask: 24
+         condition_list:
+           - condition: ge
+             prelen: 32
+           - condition: le
+             prelen: 32
+         state: present
+       - number: 10
+         permit: true
+         net_num: 10.199.199.0
+         mask: 24
+         condition_list:
+           - condition: ge
+             prelen: 32
+           - condition: le
+             prelen: 32
+         state: present
+     state: present
+
+
+os10_interface:
+  loopback 0:
+    admin: up
+    ip_and_mask: 10.0.0.4/32
+  loopback 1:
+    admin: up
+    ip_and_mask: 10.199.199.2/32
+  ethernet 1/1/1:1:
+    desc: "Link to Esxi"
+    portmode: trunk
+    admin: up
+  ethernet 1/1/2:1:
+    desc: "Link to Baremetal"
+    admin: up
+  ethernet 1/1/3:1:
+    desc: "Link to Router"
+    switchport: False
+    vrf: Blue
+    mtu: 1532
+    ip_and_mask: 192.168.202.1/24
+    admin: up
+  ethernet 1/1/49:
+    desc: "Link to Spine1-Z9100-ON ethernet1/1/4"
+    switchport: False
+    admin: up
+    mtu: 9216
+    ip_and_mask: 10.99.41.1/24
+  ethernet 1/1/51:
+    desc: "Link to Spine2-Z9100-ON ethernet1/1/4"
+    switchport: False
+    admin: up
+    mtu: 9216
+    ip_and_mask: 10.99.42.1/24
+  ethernet 1/1/55:
+    desc: "VLT 1"
+    switchport: False
+    admin: up
+  ethernet 1/1/56:
+    desc: "VLT 2"
+    switchport: False
+    admin: up
+  vlan 101:
+    admin: up
+  vlan 102:
+    admin: up
+  vlan 103:
+    admin: up
+  vlan 104:
+    admin: up
+  vlan 4000:
+    ip_and_mask: 10.99.99.4/24
+    admin: up
+  virtual-network 10100:
+    vrf: "Blue"
+    ip_and_mask: 172.16.101.250/24
+    virtual_gateway_ip: 172.16.101.254
+    admin: up
+  virtual-network 10200:
+    vrf: "Blue"
+    ip_and_mask: 172.16.102.250/24
+    virtual_gateway_ip: 172.16.102.254
+    admin: up
+  virtual-network 10300:
+    vrf: "Red"
+    ip_and_mask: 172.16.103.250/24
+    virtual_gateway_ip: 172.16.103.254
+    admin: up
+  virtual-network 10400:
+    vrf: "Red"
+    ip_and_mask: 172.16.104.250/24
+    virtual_gateway_ip: 172.16.104.254
+    admin: up
+
+os10_vlan:
+    vlan 101:
+      tagged_members:
+        - port: ethernet 1/1/1:1
+          state: present
+      state: present
+    vlan 102:
+      tagged_members:
+        - port: ethernet 1/1/1:1
+          state: present
+      state: present
+    vlan 103:
+      tagged_members:
+        - port: ethernet 1/1/1:1
+          state: present
+        - port: port-channel 10
+          state: present
+      state: present
+    vlan 104:
+      tagged_members:
+        - port: ethernet 1/1/1:1
+          state: present
+        - port: port-channel 10
+          state: present
+      state: present
+
+os10_vlt:
+    domain: 1
+    backup_destination: "192.168.114.15"
+    destination_type: "ipv4"
+    discovery_intf: 1/1/55, 1/1/56
+    discovery_intf_state: present
+    peer_routing: True
+    vlt_mac: 52:54:00:a5:87:12
+
+os10_route_map:
+  route_map:
+    - name: redistri-underlay
+      permit: true
+      seq_num: 5
+      match:
+       - ip_type: ipv4
+         prefix_list: redistri-underlay
+      state: present
+
+os10_bgp:
+    asn: 65112
+    router_id: 10.0.0.4
+    redistribute:
+      - route_type: connected
+        address_type: ipv4
+        route_map_name: redistri-underlay
+        state: present
+    neighbor:
+      - type: "peergroup"
+        name: "ebgp_unified"
+        allow_as_in: 1
+        address_family:
+          - type: ipv4
+            activate: true
+            state: present
+        state: present
+      - type: "peergroup"
+        name: "ebgp_evpn"
+        ebgp_multihop: 4
+        send_community:
+          - type: extended
+            state: present
+        src_loopback: 0
+        address_family:
+          - type: ipv4
+            activate: false
+            state: present
+          - type: l2vpn
+            activate: true
+            allow_as_in: 1
+            state: present
+        state: present
+      - type: ipv4
+        ip: 10.99.41.11
+        remote_asn: 65101
+        peergroup: ebgp_unified
+        peergroup_state: present
+        admin: up
+        state: present
+      - type: ipv4
+        ip: 10.99.42.22
+        remote_asn: 65101
+        peergroup: ebgp_unified
+        peergroup_state: present
+        admin: up
+        state: present
+      - type: ipv4
+        ip: 10.99.99.3
+        remote_asn: 65112
+        admin: up
+        state: present
+      - type: ipv4
+        ip: 10.0.99.1
+        remote_asn: 65101
+        peergroup: ebgp_evpn
+        peergroup_state: present
+        admin: up
+        state: present
+      - type: ipv4
+        ip: 10.0.99.2
+        remote_asn: 65101
+        peergroup: ebgp_evpn
+        peergroup_state: present
+        admin: up
+        state: present
+
+os10_vxlan:
+    anycast_gateway_mac: 52:54:00:87:87:87
+    nve:
+      source_interface: 1
+      state: present
+    evpn:
+      evi:
+        - id: 10100
+          vni: 
+            id: 10100
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10100:10100"
+              route_target_type: "both"
+              state: "present"
+        - id: 10200
+          vni: 
+            id: 10200
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10200:10200"
+              route_target_type: "both"
+              state: present
+        - id: 10300
+          vni:
+            id: 10300
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10300:10300"
+              route_target_type: "both"
+              state: present
+        - id: 10400
+          vni:
+            id: 10400
+            state: "present"
+          rd: "auto"
+          route_target:
+            - type: "manual"
+              asn_value: "10400:10400"
+              route_target_type: "both"
+              state: present
+      vrf:
+        - name: "Blue"
+          vni: 20000
+          adv_ipv4:
+            - type: "connected"
+              state: "present"
+            - type: "ospf"
+              state: "present"
+          route_target:
+            - type: "manual"
+              asn_value: "20000:20000"
+              route_target_type: "both"
+              state: "present"
+        - name: "Red"
+          vni: 40000
+          adv_ipv4:
+            - type: "connected"
+              state: "present"
+          route_target:
+            - type: "manual"
+              asn_value: "40000:40000"
+              route_target_type: "both"
+              state: "present"
+      rmac: 52:54:00:87:87:12
+    virtual_network:
+      virtual_net:
+        - id: 10100
+          vxlan_vni:
+            id: 10100
+        - id: 10200
+          vxlan_vni:
+            id: 10200
+        - id: 10300
+          vxlan_vni:
+            id: 10300
+        - id: 10400
+          vxlan_vni:
+            id: 10400
+    vlan_association:
+      - vlan_id: 101
+        virtual_net: 10100
+      - vlan_id: 102
+        virtual_net: 10200
+      - vlan_id: 103
+        virtual_net: 10300
+      - vlan_id: 104
+        virtual_net: 10400
+

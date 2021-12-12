@@ -1,0 +1,13 @@
+---
+- hosts: Borders
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+  - name: "Conf leaking Vrf Ext"
+    os10_config:
+      lines: 
+        - ip route-export 60000:60000 route-map Xport-from-Ext-to-fabric
+        - ip route-import 40000:40000 route-map Xport-from-fabric-to-Ext
+        - ip route-import 20000:20000 route-map Xport-from-fabric-to-Ext
+      parents: ['ip vrf Ext']

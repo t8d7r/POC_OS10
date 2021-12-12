@@ -1,0 +1,94 @@
+- hosts: dellos10
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  roles:
+    - os10_system
+
+- hosts: dellos10
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+  - name: "Conf management route"
+    os10_config:
+      lines: ['management route 0.0.0.0/0 192.168.114.254']
+
+- hosts: Leaves
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+  - name: "Conf port-group 1 to 4-10x"
+    os10_config:
+      lines: ['mode Eth 10g-4x']
+      parents: ['port-group 1/1/1']
+- hosts: Borders
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+  - name: "Conf port-group 1 to 4-10x"
+    os10_config:
+      lines: ['mode Eth 10g-4x']
+      parents: ['port-group 1/1/1']
+
+- hosts: dellos10
+  gather_facts: false
+  ignore_errors: yes
+  connection: network_cli
+  collections:
+    - dellemc.os10
+  roles:
+    - os10_vrf
+    - os10_interface
+    - os10_lag
+    - os10_vlan
+    - os10_vlt
+    - os10_prefix_list
+    - os10_route_map
+    - os10_bgp
+    - os10_vxlan
+
+- hosts: Borders
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+  - name: "Conf OSPF Router"
+    os10_config:
+      lines:
+        - router ospf 100
+- hosts: Borders
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+  - name: "Conf OSPF Router vrf"
+    os10_config:
+      lines:
+        - router ospf 101 vrf Blue
+  - name: "Conf OSPF Default"
+    os10_config:
+      lines:
+        - router-id "{{inventory_hostname[-1]}}.{{inventory_hostname[-1]}}.{{inventory_hostname[-1]}}.{{inventory_hostname[-1]}}"
+        - redistribute connected
+        - redistribute imported-ospf-routes
+      parents: ['router ospf 100']
+  - name: "Conf OSPF Tenant"
+    os10_config:
+      lines:
+        - router-id "{{inventory_hostname[-1]}}.{{inventory_hostname[-1]}}.{{inventory_hostname[-1]}}.{{inventory_hostname[-1]}}"
+        - redistribute connected
+        - redistribute imported-ospf-routes
+        - redistribute l2vpn evpn
+      parents: ['router ospf 101 vrf Blue']
+  - name: "Conf OSPF interface"
+    os10_config:
+      lines: ['ip ospf 101 area 0.0.0.0']
+      parents: ['interface ethernet 1/1/3:1']
+  - name: "Conf OSPF P2P link"
+    os10_config:
+      lines: ['ip ospf network point-to-point']
+      parents: ['interface ethernet 1/1/3:1']
+

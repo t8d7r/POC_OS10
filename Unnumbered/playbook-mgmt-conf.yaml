@@ -1,0 +1,17 @@
+---
+- hosts: dellos10
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  roles:
+    - os10_system
+
+- hosts: dellos10
+  gather_facts: False
+  collections:
+    - dellemc.os10
+  tasks:
+  - name: "Conf management route"
+    os10_config:
+      lines: ['management route 0.0.0.0/0 192.168.114.254']
+
